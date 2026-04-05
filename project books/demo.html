@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Book Emporium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --accent-gold: #f39c12;
+            --whatsapp-green: #25d366;
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            --gold-glow: 0 0 15px rgba(243, 156, 18, 0.5);
+            --bg-color: #f0f2f5;
+            --card-bg: white;
+            --text-color: #333;
+            --secondary-text: #2c3e50;
+            --input-bg: #fff;
+            --summary-bg: #f9f9f9;
+            --desc-bg: #f8f9fa;
+        }
+
+        body.dark-theme {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --secondary-text: #cbd5e1;
+            --input-bg: #334155;
+            --summary-bg: #1e293b;
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            --desc-bg: #334155;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        
+        body { 
+            margin: 0; 
+            background: var(--bg-color); 
+            background-image: radial-gradient(#d1d9e6 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-color); 
+            overflow-x: hidden;
+        }
+
+        body.dark-theme { background-image: radial-gradient(#334155 1px, transparent 1px); }
+
+        header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 3.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-toggle {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+            color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer;
+            backdrop-filter: blur(5px); z-index: 10; font-size: 0.8rem; font-weight: 600;
+        }
+
+        header::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg); animation: shine 6s infinite;
+        }
+
+        @keyframes shine { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+
+        .logo-container {
+            width: 130px; height: 130px; margin-bottom: 1rem; border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.8); background-color: white;
+            box-shadow: var(--card-shadow); display: flex; align-items: center;
+            justify-content: center; overflow: hidden; z-index: 2; animation: fadeInUp 0.8s ease-out;
+        }
+
+        header h1 { margin: 0.5rem 0; font-size: 2.8rem; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: fadeInUp 0.8s ease-out 0.2s backwards; }
+
+        .quotation-box {
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(5px);
+            padding: 15px 25px; border-radius: 12px; margin-top: 15px;
+            border-left: 4px solid var(--accent-gold); max-width: 600px; text-align: left;
+            z-index: 2; animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { width: 90%; max-width: 1100px; margin: 3rem auto; }
+
+        .book-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 35px; 
+        }
+
+        .book-card {
+            background: var(--card-bg); padding: 25px; border-radius: 20px;
+            box-shadow: var(--card-shadow); text-align: center; border: 1px solid rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; transition: transform 0.4s;
+            opacity: 0; transform: translateY(30px);
+        }
+
+        .book-card.reveal {
+            opacity: 1; transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .book-card:hover { transform: translateY(-15px); border-color: var(--accent-gold); }
+
+        .image-viewer {
+            position: relative; width: 100%; height: 280px; overflow: hidden; border-radius: 12px; margin-bottom: 15px;
+        }
+        .image-viewer img {
+            width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s;
+        }
+        .img-inside { opacity: 0; transform: scale(1.1); }
+        
+        .image-viewer.show-inside .img-outside { opacity: 0; transform: scale(0.9); }
+        .image-viewer.show-inside .img-inside { opacity: 1; transform: scale(1); }
+
+        .view-toggle {
+            position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6);
+            color: white; border: none; padding: 5px 12px; border-radius: 20px;
+            font-size: 0.7rem; cursor: pointer; z-index: 3; backdrop-filter: blur(3px);
+        }
+        .view-toggle:hover { background: var(--accent-gold); }
+
+        .dimensions {
+            display: inline-block; background: rgba(0,0,0,0.05); color: var(--secondary-text);
+            font-size: 0.8rem; padding: 4px 12px; border-radius: 50px; margin-bottom: 10px; font-weight: 600;
+        }
+
+        .description-box {
+            background: var(--desc-bg); padding: 10px; border-radius: 8px; font-size: 0.85rem;
+            color: var(--secondary-text); margin-bottom: 15px; border-left: 3px solid var(--accent-gold);
+            text-align: left; flex-grow: 1;
+        }
+
+        .price-tag { font-size: 1.5rem; color: #1e3c72; font-weight: 700; margin: 5px 0; display: block; }
+        body.dark-theme .price-tag { color: var(--accent-gold); }
+
+        .qty-container {
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px auto;
+        }
+        .qty-btn {
+            background: var(--primary-gradient); color: white; border: none; width: 35px; height: 35px;
+            border-radius: 10px; cursor: pointer; font-size: 1.2rem; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .qty-btn:active { transform: scale(0.9); }
+
+        .qty-box {
+            background: var(--input-bg); border: 2px solid #ddd; color: var(--text-color);
+            border-radius: 10px; padding: 8px; width: 60px; text-align: center; font-weight: bold;
+        }
+
+        /* ABOUT SECTION STYLES */
+        .about-section {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 40px;
+            margin: 60px 0;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            border: 1px solid rgba(243, 156, 18, 0.2);
+        }
+        .about-content { flex: 1; }
+        .about-content h2 { color: var(--accent-gold); margin-top: 0; }
+        .about-content p { line-height: 1.6; color: var(--secondary-text); }
+        .about-image {
+            flex: 1;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .about-image img { width: 100%; display: block; filter: grayscale(20%); transition: 0.5s; }
+        .about-image:hover img { filter: grayscale(0%); transform: scale(1.05); }
+
+        .payment-section {
+            background: var(--card-bg); padding: 50px; margin-top: 60px; border-radius: 30px;
+            text-align: center; box-shadow: var(--card-shadow); display: flex; flex-direction: column;
+            align-items: center; border: 2px solid rgba(0,0,0,0.05);
+        }
+
+        .order-summary {
+            background: var(--summary-bg); width: 100%; max-width: 320px; padding: 20px;
+            border-radius: 15px; margin-bottom: 20px; border: 1px dashed #ccc; text-align: left;
+        }
+
+        .summary-total { border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; color: #1e3c72; font-weight: bold; font-size: 1.2rem; }
+        body.dark-theme .summary-total { color: var(--accent-gold); }
+
+        .qr-box {
+            width: 200px; height: 200px; margin: 25px auto; border: 4px solid var(--accent-gold);
+            padding: 10px; border-radius: 20px; background: white; box-shadow: var(--gold-glow); animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 70% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        .cod-btn {
+            background: linear-gradient(to right, #e74c3c, #c0392b); color: white; border: none;
+            padding: 18px 45px; font-size: 1.2rem; font-weight: 600; border-radius: 50px; cursor: pointer;
+            transition: 0.3s;
+        }
+        .cod-btn:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3); }
+
+        .wa-float {
+            position: fixed; bottom: 30px; right: 30px; background: var(--whatsapp-green);
+            color: white; padding: 18px 25px; border-radius: 50px; text-decoration: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-weight: bold; z-index: 1000;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 850px) { 
+            .book-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } 
+            .about-section { flex-direction: column; text-align: center; padding: 30px; }
+            .container { width: 95%; }
+            header h1 { font-size: 2.2rem; }
+            .image-viewer { height: 200px; }
+        }
+
+        @media (max-width: 480px) {
+            .book-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .book-card h3 { font-size: 0.9rem; }
+            .price-tag { font-size: 1.1rem; }
+            .qty-btn { width: 30px; height: 30px; }
+            .qty-box { width: 45px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    <div class="logo-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/3389/3389081.png" alt="Logo" style="max-width: 80%;">
+    </div>
+    <h1>Premium Book Store</h1>
+    <p>Hand-Picked Collections • Direct Doorstep Delivery</p>
+    <div class="quotation-box">
+        <p>✨ <em>Compare, Research, and Buy</em></p>
+        <p>🚚 <strong>Delivery:</strong> ₹8 per order</p>
+    </div>
+</header>
+
+<div class="container">
+    <div class="book-grid">
+        <div class="book-card" data-name="The Great Adventure" data-price="500">
+            <div class="image-viewer" id="v1">
+                <img src="BOOK.1.1.1.jpeg" class="img-outside" alt="Cover">
+                <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400" class="img-inside" alt="Inside">
+                <button class="view-toggle" onclick="toggleView('v1')">🔍 Inside Analysis</button>
+            </div>
+            <h3>The Great Adventure</h3>
+            <div class="dimensions">📏 L: 21cm | B: 14cm</div>
+            <div class="description-box">Explore vast landscapes and hidden mysteries in this thrilling journey.</div>
+            <span class="price-tag">₹500</span>
+            <div class="qty-container">
+                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                <input type="number" value="0" min="0" class="qty-box" onchange="updateTotal()">
+                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="book-card" data-name="Business Strategy" data-price="850">
+            <div class="image-viewer" id="v2">
+                <img src="BOOK.2_square_blur.png" class="img-outside" alt="Cover">
+                <img src="https://images.unsplash.com/photo-1454165833767-027eeef1593e?auto=format&fit=crop&w=400" class="img-inside" alt="Inside">
+                <button class="view-toggle" onclick="toggleView('v2')">🔍 Inside Analysis</button>
+            </div>
+            <h3>Business Strategy</h3>
+            <div class="dimensions">📏 L: 24cm | B: 16cm</div>
+            <div class="description-box">Master corporate leadership and market analysis with proven frameworks.</div>
+            <span class="price-tag">₹850</span>
+            <div class="qty-container">
+                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                <input type="number" value="0" min="0" class="qty-box" onchange="updateTotal()">
+                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="book-card" data-name="Mindset Mastery" data-price="450">
+            <div class="image-viewer" id="v3">
+                <img src="BOOK.3_square_blur.png" class="img-outside" alt="Cover">
+                <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=400" class="img-inside" alt="Inside">
+                <button class="view-toggle" onclick="toggleView('v3')">🔍 Inside Analysis</button>
+            </div>
+            <h3>Mindset Mastery</h3>
+            <div class="dimensions">📏 L: 19cm | B: 12cm</div>
+            <div class="description-box">Unlock your brain's full potential and stay productive every day.</div>
+            <span class="price-tag">₹450</span>
+            <div class="qty-container">
+                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                <input type="number" value="0" min="0" class="qty-box" onchange="updateTotal()">
+                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="book-card" data-name="Modern Design" data-price="1200">
+            <div class="image-viewer" id="v4">
+                <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=400" class="img-outside" alt="Cover">
+                <img src="https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&w=400" class="img-inside" alt="Inside">
+                <button class="view-toggle" onclick="toggleView('v4')">🔍 Inside Analysis</button>
+            </div>
+            <h3>Modern Design</h3>
+            <div class="dimensions">📏 L: 28cm | B: 22cm</div>
+            <div class="description-box">A visual guide to contemporary aesthetics in digital and physical space.</div>
+            <span class="price-tag">₹1200</span>
+            <div class="qty-container">
+                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                <input type="number" value="0" min="0" class="qty-box" onchange="updateTotal()">
+                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="book-card" data-name="History of Art" data-price="600">
+            <div class="image-viewer" id="v5">
+                <img src="BOOK.5_square_blur.png" class="img-outside" alt="Cover">
+                <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=400" class="img-inside" alt="Inside">
+                <button class="view-toggle" onclick="toggleView('v5')">🔍 Inside Analysis</button>
+            </div>
+            <h3>History of Art</h3>
+            <div class="dimensions">📏 L: 22cm | B: 15cm</div>
+            <div class="description-box">Journey through the Renaissance to the modern era of masterpieces.</div>
+            <span class="price-tag">₹600</span>
+            <div class="qty-container">
+                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                <input type="number" value="0" min="0" class="qty-box" onchange="updateTotal()">
+                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+
+        <div class="book-card" data-name="Programming Basics" data-price="999">
+            <div class="image-viewer" id="v6">
+                <img src="BOOK.6.png" class="img-outside" alt="Cover">
+                <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&w=400" class="img-inside" alt="Inside">
+                <button class="view-toggle" onclick="toggleView('v6')">🔍 Inside Analysis</button>
+            </div>
+            <h3>Programming Basics</h3>
+            <div class="dimensions">📏 L: 25cm | B: 18cm</div>
+            <div class="description-box">The ultimate foundation for beginners. Learn logic and modern syntax.</div>
+            <span class="price-tag">₹999</span>
+            <div class="qty-container">
+                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                <input type="number" value="0" min="0" class="qty-box" onchange="updateTotal()">
+                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <div class="about-content">
+            <h2>📖 Our Story & Hard Work</h2>
+            <p>Welcome to <strong>Premium Book Emporium</strong>. What started as a small passion project has grown into a curated haven for readers. Every book in our catalog is hand-picked for its quality, relevance, and impact.</p>
+            <p>Our team works tirelessly behind the scenes—from researching the best titles to ensuring your order is packed with care and delivered right to your doorstep. We believe in the power of physical books to transform minds, and that's why we put our heart into every single delivery.</p>
+            <p><em>Thank you for supporting our journey and valuing the hard work that goes into every page.</em></p>
+        </div>
+        <div class="about-image">
+            <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600" alt="About Us">
+        </div>
+    </div>
+
+    <div class="payment-section">
+        <h2 style="color: var(--accent-gold)">💳 Order Summary</h2>
+        <div class="order-summary">
+            <div class="summary-line"><span>Subtotal:</span> <span id="subtotalText">₹0</span></div>
+            <div class="summary-line"><span>Delivery:</span> <span id="deliveryText">₹0</span></div>
+            <div class="summary-line summary-total"><span>Grand Total:</span> <span id="grandTotalText">₹0</span></div>
+        </div>
+        <div class="qr-box"><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=Pay" alt="QR" style="width:100%"></div>
+        <button class="cod-btn" onclick="checkout()">🛒 CONFIRM ORDER (COD)</button>
+    </div>
+</div>
+
+<a href="https://wa.me/9182030324" class="wa-float" target="_blank">💬 WhatsApp Support</a>
+
+<script>
+    const DELIVERY_CHARGE = 8;
+
+    const observerOptions = { threshold: 0.1 };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('reveal');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.book-card').forEach(card => observer.observe(card));
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+        const btn = document.querySelector('.theme-toggle');
+        btn.innerHTML = document.body.classList.contains('dark-theme') ? "☀️ Light Mode" : "🌙 Dark Mode";
+    }
+
+    function toggleView(id) {
+        const viewer = document.getElementById(id);
+        const btn = viewer.querySelector('.view-toggle');
+        viewer.classList.toggle('show-inside');
+        btn.innerText = viewer.classList.contains('show-inside') ? "📘 Show Cover" : "🔍 Inside Analysis";
+    }
+
+    function changeQty(btn, delta) {
+        const container = btn.parentElement;
+        const input = container.querySelector('.qty-box');
+        let currentVal = parseInt(input.value) || 0;
+        let newVal = currentVal + delta;
+        if (newVal < 0) newVal = 0;
+        input.value = newVal;
+        updateTotal();
+    }
+
+    function updateTotal() {
+        const cards = document.querySelectorAll('.book-card');
+        let subtotal = 0; let hasItems = false;
+        cards.forEach(card => {
+            const qty = parseInt(card.querySelector('.qty-box').value) || 0;
+            if (qty > 0) { subtotal += qty * parseInt(card.getAttribute('data-price')); hasItems = true; }
+        });
+        const currentDelivery = hasItems ? DELIVERY_CHARGE : 0;
+        document.getElementById('subtotalText').innerText = `₹${subtotal}`;
+        document.getElementById('deliveryText').innerText = `₹${currentDelivery}`;
+        document.getElementById('grandTotalText').innerText = `₹${subtotal + currentDelivery}`;
+    }
+
+    function checkout() {
+        const cards = document.querySelectorAll('.book-card');
+        let message = ""; let hasItems = false; let subtotal = 0;
+        const orderID = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+        message = `📌 *ORDER ID: ${orderID}*%0a----------------------------%0a`;
+        cards.forEach(card => {
+            const qty = card.querySelector('.qty-box').value;
+            if (qty > 0) {
+                message += `• ${card.getAttribute('data-name')}%0a  Qty: ${qty} | ₹${qty * card.getAttribute('data-price')}%0a`;
+                subtotal += qty * card.getAttribute('data-price');
+                hasItems = true;
+            }
+        });
+        if (!hasItems) return alert("Select a book!");
+        message += `----------------------------%0a🚚 Delivery: ₹${DELIVERY_CHARGE}%0a⭐ *TOTAL: ₹${subtotal + DELIVERY_CHARGE}*`;
+        window.open(`https://wa.me/+919182030324?text=${message}`, '_blank');
+    }
+</script>
+</body>
+</html>
